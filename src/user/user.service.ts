@@ -26,18 +26,28 @@ export class UserService {
     if (existNickname) {
       throw new HttpException('昵称已存在', HttpStatus.BAD_REQUEST);
     }
-
     const newUser = await this.userRepository.create(createUserDto);
     return await this.userRepository.save(newUser);
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll(createUserDto: CreateUserDto) {
+    const { username, nickname } = createUserDto;
+    return await this.userRepository.find({
+      where: [{ username }, { nickname }],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(username: string) {
+    return await this.userRepository.findOne({
+      where: { username },
+    });
+  }
+
+  async findByUsername(username) {
+    return await this.userRepository.findOne({
+      where: { username },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
