@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { FindUserDto } from './dto/find-user.dto';
 
 @Injectable()
 export class UserService {
@@ -28,7 +29,6 @@ export class UserService {
     }
     const newUser = await this.userRepository.create(createUserDto);
     return await this.userRepository.save(newUser);
-    return 'This action adds a new user';
   }
 
   async findAll(createUserDto: CreateUserDto) {
@@ -38,9 +38,19 @@ export class UserService {
     });
   }
 
-  async findOne(username: string) {
-    return await this.userRepository.findOne({
-      where: { username },
+  async findOne(findUserDto: FindUserDto) {
+    // delete findUserDto.password;
+    return this.userRepository.findOne({
+      where: findUserDto,
+    });
+  }
+
+  // 验证邮箱存不存在
+  async validateUserEmail(email) {
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
     });
   }
 

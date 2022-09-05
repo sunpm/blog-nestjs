@@ -1,14 +1,29 @@
-import * as crypto from 'crypto';
+import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
-export function makeSalt(): string {
-  return crypto.randomBytes(3).toString('base64');
-}
-
-export function encryptPassword(password: string, salt: string): string {
-  if (!password || !salt) return '';
-
-  const tempSalt = Buffer.from(salt, 'base64');
-  return crypto
-    .pbkdf2Sync(password, tempSalt, 10000, 16, 'sha1')
-    .toString('base64');
+@Injectable()
+export class BcryptService {
+  private static readonly SALT_ROUNDS: number = 10;
+  /**
+   * 对比检查密码
+   * @param rawStr
+   * @param hashedStr
+   */
+  static compareSync(rawStr: string, hashedStr: string) {
+    return bcrypt.compareSync(rawStr, hashedStr);
+  }
+  /**
+   * 生成 hash
+   * @param rawStr
+   * @param salt
+   */
+  static hashSync(rawStr: string, salt?: string | number): string {
+    return bcrypt.hashSync(rawStr, salt || BcryptService.SALT_ROUNDS);
+  }
+  /**
+   * 生成盐
+   */
+  static genSaltSync() {
+    return bcrypt.genSaltSync(BcryptService.SALT_ROUNDS);
+  }
 }

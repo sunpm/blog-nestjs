@@ -1,18 +1,21 @@
 import { BaseEntity } from '../../common/entities/base.entity';
-import { Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { BcryptService } from '../../utils/cryptogram';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
   @Column({
     length: 20,
     comment: '用户名',
+    default: '123',
   })
   username: string;
 
   @Column({
     length: 20,
     comment: '昵称',
+    default: '1243',
   })
   nickname: string;
 
@@ -20,6 +23,14 @@ export class UserEntity extends BaseEntity {
   @Column({ comment: '密码' })
   password: string;
 
+  @Index({
+    unique: true,
+  })
   @Column({ comment: '邮箱' })
   email: string;
+
+  @BeforeInsert()
+  private async hashPassword() {
+    this.password = BcryptService.hashSync(this.password);
+  }
 }

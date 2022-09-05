@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    @InjectRepository(UserEntity)
+    private readonly userEntity: Repository<UserEntity>,
   ) {}
 
   async validateUser(
@@ -25,11 +30,24 @@ export class AuthService {
     }
   }
 
+  async register(registerDto: RegisterDto) {
+    const existUser = await this.userService.findOne(registerDto);
+    if (existUser) {
+      throw new HttpException('邮箱已存在', HttpStatus.BAD_REQUEST);
+    }
+    const newUser = await this.userEntity.create(registerDto);
+    return await this.userEntity.save(newUser);
+  }
+
   async login(user: UserEntity) {
-    const payload = { username: user.username, sub: user.id };
+    const payload = {
+      username: user.username,
+      id: user.id,
+      email: user.email,
+    };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      token: this.jwtService.sign(payload),
     };
   }
 }
