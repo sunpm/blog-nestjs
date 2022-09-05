@@ -1,7 +1,8 @@
 import { BaseEntity } from '../../common/entities/base.entity';
-import { BeforeInsert, Column, Entity, Index } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BcryptService } from '../../utils/cryptogram';
+import { ArticleEntity } from '../../article/entities/article.entity';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
@@ -28,6 +29,11 @@ export class UserEntity extends BaseEntity {
   })
   @Column({ comment: '邮箱' })
   email: string;
+
+  @OneToMany(() => ArticleEntity, (article) => article.author, {
+    cascade: true,
+  })
+  articles: ArticleEntity[];
 
   @BeforeInsert()
   private async hashPassword() {
