@@ -1,5 +1,6 @@
 import {
   CreateDateColumn,
+  DeleteDateColumn,
   Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -23,4 +24,11 @@ export abstract class BaseEntity {
     name: 'update_time',
   })
   updatedDate: Date;
+
+  @DeleteDateColumn({
+    name: 'deleted_time',
+    type: 'datetime',
+    comment: '删除时间',
+  })
+  deletedTime: string;
 }

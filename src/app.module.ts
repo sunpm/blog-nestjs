@@ -29,7 +29,7 @@ import { ArticleModule } from './article/article.module';
           autoLoadEntities: true,
           synchronize: config.get('DB_SYNC'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'], //这个实体是编译后的dist下
-          timezone: '+08:00',
+          dateStrings: true,
         };
       },
       inject: [ConfigService],

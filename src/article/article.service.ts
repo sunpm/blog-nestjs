@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,19 +31,24 @@ export class ArticleService {
   }
   async findByAuthorAll(authorId: number) {
     const articles = await this.userRepository.find({
+      where: { id: authorId },
       relations: ['articles'],
-      where: {
-        id: authorId,
-      },
     });
     return articles;
   }
 
-  update(id: number, updateArticleDto: UpdateArticleDto) {
+  async update(id: number, updateArticleDto: UpdateArticleDto) {
+    return await this.articleRepository.update(id, updateArticleDto);
     return `This action updates a #${id} article`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} article`;
+  async remove(id: number) {
+    const article = await this.articleRepository.findOne({
+      where: { id },
+    });
+    if (!article) {
+      throw new UnprocessableEntityException('文章不存在');
+    }
+    return await this.articleRepository.softDelete(article);
   }
 }
